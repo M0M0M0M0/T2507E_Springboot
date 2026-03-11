@@ -1,19 +1,21 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.req.StudentReq;
 import com.example.demo.dto.res.StudentRes;
+
 import com.example.demo.entity.Student;
+import com.example.demo.repository.GroupRepository;
 import com.example.demo.repository.StudentRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @AllArgsConstructor
 public class StudentService {
     private StudentRepository studentRepository;
-
+    private GroupRepository groupRepository;
     public List<StudentRes> getAllStudents(){
 //        List<Student> rs = studentRepository.findAll();
 //        List<StudentRes> data = new ArrayList<>();
@@ -27,5 +29,40 @@ public class StudentService {
                 .stream()
                 .map(StudentRes::toJson)
                 .toList();
+    }
+    public StudentRes findStudentById(Long id){
+        return  StudentRes.toJson(studentRepository.findById(id).get());
+    }
+    public StudentRes create(StudentReq req){
+        try{
+            Student s = new Student();
+            s.setName(req.getName());
+            s.setDob(req.getDob());
+            s.setMark(req.getMark());
+            s.setGroup(groupRepository.findById(req.getGroupId())
+                    .orElseThrow(()-> new RuntimeException("Group not found")));
+            return StudentRes.toJson(studentRepository.save(s)) ;
+
+        }catch (Exception e){
+            return null;
+        }
+    }
+    public StudentRes update(StudentReq req){
+        Student s = studentRepository.findById(req.getId()).orElseThrow(
+                ()->new RuntimeException("Student not found.")
+        );
+        s.setName(req.getName());
+        s.setDob(req.getDob());
+        s.setMark(req.getMark());
+        s.setGroup(groupRepository.findById(req.getGroupId())
+                .orElseThrow(()-> new RuntimeException("Group not found")));
+        return StudentRes.toJson(studentRepository.save(s)) ;
+    }
+    public StudentRes delete(Long id){
+        Student s = studentRepository.findById(id).orElseThrow(
+                ()->new RuntimeException("Student not found.")
+        );
+        studentRepository.delete(s);
+        return StudentRes.toJson(s);
     }
 }

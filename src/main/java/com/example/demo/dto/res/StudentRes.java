@@ -14,9 +14,9 @@ public class StudentRes {
     private Long id;
     private String name;
     private Date dob;
-    private Integer mark;
+//    private Integer mark;
 
     public static StudentRes toJson(Student student){
-        return new StudentRes(student.getId(), student.getName(),student.getDob(),student.getMark());
+        return new StudentRes(student.getId(), student.getName(),student.getDob());
     }
 }
